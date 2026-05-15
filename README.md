@@ -41,8 +41,12 @@ Backend:
 ```text
 frontend_technical_assessment/
 |-- backend/
+|   |-- __init__.py
 |   |-- main.py
 |   `-- requirements.txt
+|
+|-- api/
+|   `-- index.py
 |
 |-- frontend/
 |   |-- public/
@@ -85,6 +89,8 @@ frontend_technical_assessment/
 |   `-- tailwind.config.js
 |
 |-- .gitignore
+|-- requirements.txt
+|-- vercel.json
 `-- README.md
 ```
 
@@ -277,6 +283,12 @@ REACT_APP_API_BASE_URL=http://localhost:8000
 
 An example file is provided at `frontend/.env.example`.
 
+In production on Vercel, no API environment variable is required. The frontend calls the same-origin API path:
+
+```text
+/api/pipelines/parse
+```
+
 ## Validation Commands
 
 Run a frontend production build:
@@ -316,6 +328,37 @@ Expected response:
 }
 ```
 
+## Vercel Deployment
+
+This repository is configured to deploy the frontend and backend in a single Vercel project.
+
+Vercel files:
+
+- `vercel.json`: builds the React app from `frontend/`, serves `frontend/build`, and rewrites `/api/*` to the Python function.
+- `api/index.py`: Vercel Python entrypoint that imports the FastAPI app from `backend/main.py`.
+- `requirements.txt`: Python runtime dependencies for Vercel.
+
+Recommended Vercel settings:
+
+```text
+Framework Preset: Other
+Root Directory: ./
+Build Command: cd frontend && npm install && npm run build
+Output Directory: frontend/build
+Install Command: leave empty
+```
+
+Environment variables:
+
+- None required for production.
+- Do not set `REACT_APP_API_BASE_URL` on Vercel unless you intentionally want to call a different API host.
+
+After deployment, the API will be available on the same domain:
+
+```text
+https://your-vercel-domain.vercel.app/api/pipelines/parse
+```
+
 ## GitHub Push Checklist
 
 Before pushing:
@@ -344,4 +387,4 @@ These are covered by the root `.gitignore`.
 
 - The project still uses Create React App because that was the provided starter setup.
 - `npm audit` reports vulnerabilities from the inherited `react-scripts` dependency chain. The app builds and runs, but a production migration to Vite would be the clean long-term path.
-- If Git treats `frontend/` as an embedded repository, remove the old `frontend/.git` folder before initializing a new repository at the project root.
+- The backend is deployed on Vercel as a Python Function, not as a long-running `uvicorn` server.

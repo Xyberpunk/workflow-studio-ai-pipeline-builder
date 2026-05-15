@@ -84,3 +84,8 @@ def parse_pipeline(pipeline: PipelineRequest) -> PipelineParseResponse:
         num_edges=len(pipeline.edges),
         is_dag=is_directed_acyclic_graph(pipeline.nodes, pipeline.edges),
     )
+
+
+@app.post('/api/pipelines/parse', response_model=PipelineParseResponse)
+def parse_pipeline_api(pipeline: PipelineRequest) -> PipelineParseResponse:
+    return parse_pipeline(pipeline)

@@ -5,7 +5,8 @@ import toast from "react-hot-toast";
 import { useStore } from "./store";
 import { serializePipeline } from "./utils/graphUtils";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? "";
+const PIPELINE_PARSE_PATH = "/api/pipelines/parse";
 
 export const usePipelineSubmit = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,7 +17,7 @@ export const usePipelineSubmit = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/pipelines/parse`, {
+      const response = await fetch(`${API_BASE_URL}${PIPELINE_PARSE_PATH}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(serializePipeline(nodes, edges)),

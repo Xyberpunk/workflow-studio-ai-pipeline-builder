@@ -45,14 +45,16 @@ npm test
 The frontend submits pipelines to:
 
 ```text
-http://localhost:8000
+/api/pipelines/parse
 ```
 
-Override it with:
+For local development with the FastAPI server running on port `8000`, use:
 
 ```bash
 REACT_APP_API_BASE_URL=http://localhost:8000
 ```
+
+On Vercel, leave `REACT_APP_API_BASE_URL` unset so the app uses the same-origin `/api` route.
 
 ## Note
 
