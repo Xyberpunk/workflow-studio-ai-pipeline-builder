@@ -8,7 +8,8 @@ export const OutputNode = ({ id, data }) => (
     title="Output"
     subtitle="Pipeline result"
     icon={LogOut}
-    variant="output"
+    color="emerald"
+    status="sink"
     inputs={[{ id: `${id}-value`, label: "value" }]}
     fields={[
       { type: "text", label: "Name", key: "outputName" },

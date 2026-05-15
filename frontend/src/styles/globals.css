@@ -37,6 +37,14 @@
   .toolbar-button {
     @apply flex h-16 min-w-24 cursor-grab items-center gap-3 rounded-xl border border-slate-700/80 bg-slate-900/80 px-4 text-left shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-400/70 hover:bg-slate-800 active:cursor-grabbing;
   }
+
+  .icon-button {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 text-slate-300 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-400/70 hover:bg-slate-800 hover:text-slate-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0;
+  }
+
+  .command-button {
+    @apply inline-flex h-10 items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3 text-sm font-semibold text-slate-300 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-400/70 hover:bg-slate-800 hover:text-slate-50;
+  }
 }
 
 .react-flow {
@@ -54,6 +62,11 @@
 .react-flow__node.selected .workflow-node-card {
   border-color: #6366f1;
   box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.55), 0 0 34px rgba(99, 102, 241, 0.22), 0 18px 45px rgba(15, 23, 42, 0.45);
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #c4b5fd;
+  stroke-width: 3;
 }
 
 .react-flow__handle {

@@ -1,12 +1,12 @@
 import { TextCursorInput } from "lucide-react";
 import { BaseNode } from "../components/BaseNode";
-import { useDynamicSize } from "../hooks/useDynamicSize";
+import { useNodeDimensions } from "../hooks/useNodeDimensions";
 import { useVariableParser } from "../hooks/useVariableParser";
 
 export const TextNode = ({ id, data }) => {
   const text = data?.text ?? "";
   const variables = useVariableParser(text);
-  const { textareaRef, dimensions } = useDynamicSize(text);
+  const { textareaRef, dimensions } = useNodeDimensions(text);
 
   return (
     <BaseNode
@@ -15,7 +15,8 @@ export const TextNode = ({ id, data }) => {
       title="Text"
       subtitle={variables.length ? `${variables.length} dynamic input${variables.length === 1 ? "" : "s"}` : "Template prompt"}
       icon={TextCursorInput}
-      variant="text"
+      color="amber"
+      status="reactive"
       dimensions={dimensions}
       inputs={variables.map((variable) => ({
         id: `${id}-var-${variable}`,

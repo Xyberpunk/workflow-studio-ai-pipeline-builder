@@ -8,7 +8,8 @@ export const LLMNode = ({ id, data }) => (
     title="LLM"
     subtitle="Prompt and system context"
     icon={Sparkles}
-    variant="llm"
+    color="indigo"
+    status="ai"
     inputs={[
       { id: `${id}-system`, label: "system" },
       { id: `${id}-prompt`, label: "prompt" },
@@ -17,6 +18,7 @@ export const LLMNode = ({ id, data }) => (
     fields={[
       { type: "select", label: "Model", key: "model", options: ["gpt-4o-mini", "gpt-4o", "claude-3.5", "gemini-1.5"] },
       { type: "number", label: "Temperature", key: "temperature", min: 0, step: 0.1 },
+      { type: "textarea", label: "System", key: "systemPrompt", rows: 2, placeholder: "System instructions" },
     ]}
   />
 );

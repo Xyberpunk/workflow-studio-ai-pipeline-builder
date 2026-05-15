@@ -1,15 +1,15 @@
-export const serializePipeline = (nodes, edges) => ({
-  nodes: nodes.map((node) => ({
-    id: node.id,
-    type: node.type,
-    position: node.position,
-    data: node.data,
-  })),
-  edges: edges.map((edge) => ({
-    id: edge.id,
-    source: edge.source,
-    target: edge.target,
-    sourceHandle: edge.sourceHandle,
-    targetHandle: edge.targetHandle,
-  })),
-});
+export { serializePipeline } from "./pipelineSerializer";
+
+export const getGraphStats = (nodes, edges) => {
+  const connectedNodeIds = new Set();
+  edges.forEach((edge) => {
+    connectedNodeIds.add(edge.source);
+    connectedNodeIds.add(edge.target);
+  });
+
+  return {
+    nodeCount: nodes.length,
+    edgeCount: edges.length,
+    isolatedCount: nodes.filter((node) => !connectedNodeIds.has(node.id)).length,
+  };
+};

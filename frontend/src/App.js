@@ -1,19 +1,7 @@
-import { PipelineToolbar } from './toolbar';
-import { PipelineUI } from './ui';
-import { Layout } from './components/Layout';
-import { usePipelineSubmit } from './submit';
+import { WorkflowStudio } from "./pages/WorkflowStudio";
 
 function App() {
-  const { isSubmitting, submitPipeline } = usePipelineSubmit();
-
-  return (
-    <Layout
-      toolbar={<PipelineToolbar />}
-      canvas={<PipelineUI />}
-      isSubmitting={isSubmitting}
-      onSubmit={submitPipeline}
-    />
-  );
+  return <WorkflowStudio />;
 }
 
 export default App;

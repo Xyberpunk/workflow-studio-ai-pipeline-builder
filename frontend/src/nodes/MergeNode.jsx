@@ -8,7 +8,8 @@ export const MergeNode = ({ id, data }) => (
     title="Merge"
     subtitle="Combine branches"
     icon={GitMerge}
-    variant="merge"
+    color="purple"
+    status="join"
     inputs={[
       { id: `${id}-input-a`, label: "input A" },
       { id: `${id}-input-b`, label: "input B" },

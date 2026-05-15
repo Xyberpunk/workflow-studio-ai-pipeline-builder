@@ -8,7 +8,8 @@ export const InputNode = ({ id, data }) => (
     title="Input"
     subtitle="External value"
     icon={LogIn}
-    variant="input"
+    color="cyan"
+    status="source"
     outputs={[{ id: `${id}-value`, label: "value" }]}
     fields={[
       { type: "text", label: "Name", key: "inputName" },

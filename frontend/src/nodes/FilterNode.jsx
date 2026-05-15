@@ -8,7 +8,8 @@ export const FilterNode = ({ id, data }) => (
     title="Filter"
     subtitle="Conditional branch"
     icon={Filter}
-    variant="filter"
+    color="lime"
+    status="branch"
     inputs={[{ id: `${id}-input`, label: "input" }]}
     outputs={[
       { id: `${id}-true`, label: "true" },

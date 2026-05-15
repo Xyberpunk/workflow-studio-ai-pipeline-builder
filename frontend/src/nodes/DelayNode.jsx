@@ -8,7 +8,8 @@ export const DelayNode = ({ id, data }) => (
     title="Delay"
     subtitle="Async wait state"
     icon={Timer}
-    variant="delay"
+    color="rose"
+    status="async"
     inputs={[{ id: `${id}-input`, label: "flow" }]}
     outputs={[{ id: `${id}-done`, label: "done" }]}
     fields={[{ type: "number", label: "Delay (ms)", key: "delayMs", min: 0, step: 100 }]}

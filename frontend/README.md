@@ -1,6 +1,6 @@
 # Workflow Studio Frontend
 
-This is the React frontend for Workflow Studio, a polished AI workflow builder created for the VectorShift frontend technical assessment.
+This is the React frontend for Workflow Studio, an AI workflow orchestration platform built with ReactFlow, TailwindCSS, Framer Motion, Zustand, and reusable node primitives.
 
 The full project documentation lives in the root [`README.md`](../README.md).
 
@@ -36,9 +36,11 @@ npm test
 
 - ReactFlow workflow canvas
 - Tailwind dark SaaS interface
-- Configuration-driven node architecture
-- Dynamic Text node variable handles
-- Toast-based backend validation feedback
+- Searchable draggable node sidebar
+- Configuration-driven node registry
+- Dynamic Text and Prompt Template variable handles
+- Undo/redo, localStorage persistence, JSON import/export
+- Toast-based backend validation feedback with graph metadata
 
 ## Backend URL
 

@@ -1,9 +1,10 @@
 import { memo, useCallback } from "react";
-import { useStore } from "../store";
-import { useNodeStyles } from "../hooks/useNodeStyles";
+import { useWorkflowStore } from "../store/useWorkflowStore";
 import { NodeCard } from "./NodeCard";
 import { NodeField } from "./NodeField";
 import { NodeHandle } from "./NodeHandle";
+import { NodeHeader } from "./NodeHeader";
+import { NodeToolbar } from "./NodeToolbar";
 
 export const BaseNode = memo(
   ({
@@ -12,15 +13,16 @@ export const BaseNode = memo(
     title,
     subtitle,
     icon: Icon,
-    variant = "default",
+    color = "slate",
+    status,
     inputs = [],
     outputs = [],
     fields = [],
     children,
     dimensions,
+    toolbar = true,
   }) => {
-    const updateNodeField = useStore((state) => state.updateNodeField);
-    const styles = useNodeStyles(variant);
+    const updateNodeField = useWorkflowStore((state) => state.updateNodeField);
 
     // Nodes stay configuration-driven: individual node files describe inputs,
     // outputs, and fields while this component owns the shared rendering contract.
@@ -32,8 +34,9 @@ export const BaseNode = memo(
     );
 
     return (
-      <NodeCard dimensions={dimensions}>
+      <NodeCard color={color} dimensions={dimensions}>
         <div className="relative">
+          <NodeToolbar enabled={toolbar} id={id} />
           {inputs.map((handle, index) => (
             <NodeHandle
               key={handle.id}
@@ -58,17 +61,7 @@ export const BaseNode = memo(
             />
           ))}
 
-          <div className="mb-4 flex items-center gap-3">
-            {Icon ? (
-              <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${styles.icon}`}>
-                <Icon size={18} strokeWidth={2.3} />
-              </div>
-            ) : null}
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold text-slate-50">{title}</div>
-              {subtitle ? <div className="truncate text-xs text-slate-400">{subtitle}</div> : null}
-            </div>
-          </div>
+          <NodeHeader color={color} icon={Icon} status={status} subtitle={subtitle} title={title} />
 
           {fields.length > 0 ? (
             <div className="space-y-3">

@@ -1,21 +1,60 @@
 # Workflow Studio
 
-A modern AI workflow automation editor . The project includes a polished React + ReactFlow frontend and a FastAPI backend that validates submitted pipelines as directed acyclic graphs.
+AI Workflow Orchestration Platform for designing, connecting, validating, importing, and exporting graph-based automation pipelines.
 
-## What This Builds
+Workflow Studio is built as a product-quality workflow editor inspired by LangFlow, n8n, Linear, Vercel tooling, and modern AI operations platforms. It combines a ReactFlow graph workspace, a reusable node engine, variable-aware prompt nodes, local workflow persistence, and a FastAPI validation service that understands graph structure.
 
-Workflow Studio is a dark-themed SaaS-style pipeline builder where users can drag nodes onto a canvas, configure each node, connect workflows visually, and submit the graph for backend validation.
+Live app:
 
-Core capabilities:
+```text
+https://workflow-studio-ai-pipeline-builder.vercel.app/
+```
 
-- Modular node architecture powered by a reusable `BaseNode`
-- Configurable node fields, input handles, output handles, icons, and layout
-- ReactFlow canvas with drag-and-drop node creation
-- Dynamic Text node resizing
-- `{{variable}}` parsing in Text nodes with generated input handles
-- Toast-based validation feedback with `react-hot-toast`
-- FastAPI endpoint for parsing submitted pipelines
-- DAG validation using Kahn's topological sorting algorithm
+Repository:
+
+```text
+https://github.com/Xyberpunk/workflow-studio-ai-pipeline-builder
+```
+
+## Feature Highlights
+
+- Dynamic node system with a shared `BaseNode` rendering engine
+- Scalable node registry for plug-and-play node types
+- Variable-aware Text and Prompt Template nodes using `{{variable}}` syntax
+- Dynamic handle generation as variables are typed
+- Auto-growing node dimensions using textarea measurement and `ResizeObserver`
+- ReactFlow canvas with snap grid, animated edges, edge labels, minimap, and custom zoom controls
+- Searchable draggable node sidebar with categories
+- Zustand workflow store with nodes, edges, selection, validation state, undo/redo, and localStorage persistence
+- Workflow export/import as JSON
+- Toast-based validation UX with success, warning, and failure states
+- FastAPI graph validation engine using Kahn's topological sorting algorithm
+- Validation metadata for isolated nodes, duplicate edges, invalid edges, disconnected graphs, and cycles
+- Vercel-only fullstack deployment using Python Functions for the API
+
+## Product Architecture
+
+```text
+User
+  |
+  v
+Workflow Studio UI
+  |
+  v
+ReactFlow Graph Editor
+  |
+  v
+Zustand Workflow Store
+  |
+  v
+Pipeline Serializer
+  |
+  v
+FastAPI Validation Engine
+  |
+  v
+Graph Analysis Response
+```
 
 ## Tech Stack
 
@@ -24,8 +63,8 @@ Frontend:
 - React 18
 - ReactFlow
 - TailwindCSS
+- Framer Motion
 - Zustand
-- React Hooks
 - react-hot-toast
 - lucide-react
 
@@ -34,177 +73,170 @@ Backend:
 - Python
 - FastAPI
 - Pydantic
-- Uvicorn
+- Kahn topological sort for DAG validation
+
+Deployment:
+
+- Vercel static frontend
+- Vercel Python Function API
 
 ## Project Structure
 
 ```text
-frontend_technical_assessment/
+workflow-studio-ai-pipeline-builder/
+|-- api/
+|   `-- index.py
 |-- backend/
 |   |-- __init__.py
 |   |-- main.py
 |   `-- requirements.txt
-|
-|-- api/
-|   `-- index.py
-|
 |-- frontend/
 |   |-- public/
 |   |-- src/
 |   |   |-- components/
 |   |   |   |-- BaseNode.jsx
+|   |   |   |-- CanvasControls.jsx
 |   |   |   |-- Layout.jsx
 |   |   |   |-- NodeCard.jsx
 |   |   |   |-- NodeField.jsx
 |   |   |   |-- NodeHandle.jsx
-|   |   |   `-- SubmitButton.jsx
+|   |   |   |-- NodeHeader.jsx
+|   |   |   |-- NodeToolbar.jsx
+|   |   |   |-- Sidebar.jsx
+|   |   |   |-- SubmitButton.jsx
+|   |   |   `-- Topbar.jsx
 |   |   |-- hooks/
 |   |   |   |-- useDynamicSize.js
+|   |   |   |-- useNodeDimensions.js
+|   |   |   |-- useNodeSelection.js
 |   |   |   |-- useNodeStyles.js
+|   |   |   |-- usePipelineValidation.js
 |   |   |   `-- useVariableParser.js
 |   |   |-- nodes/
 |   |   |   |-- APINode.jsx
+|   |   |   |-- ConditionalNode.jsx
 |   |   |   |-- DelayNode.jsx
 |   |   |   |-- FilterNode.jsx
 |   |   |   |-- InputNode.jsx
+|   |   |   |-- JSONNode.jsx
 |   |   |   |-- LLMNode.jsx
 |   |   |   |-- MathNode.jsx
 |   |   |   |-- MergeNode.jsx
 |   |   |   |-- OutputNode.jsx
+|   |   |   |-- PromptTemplateNode.jsx
 |   |   |   `-- TextNode.jsx
+|   |   |-- pages/
+|   |   |   `-- WorkflowStudio.jsx
+|   |   |-- registry/
+|   |   |   `-- nodeRegistry.js
+|   |   |-- store/
+|   |   |   `-- useWorkflowStore.js
 |   |   |-- styles/
 |   |   |   `-- globals.css
 |   |   |-- utils/
 |   |   |   |-- graphUtils.js
 |   |   |   |-- nodeFactory.js
-|   |   |   `-- parseVariables.js
+|   |   |   |-- parseVariables.js
+|   |   |   |-- pipelineSerializer.js
+|   |   |   `-- validationUtils.js
 |   |   |-- App.js
-|   |   |-- draggableNode.js
-|   |   |-- store.js
-|   |   |-- submit.js
-|   |   |-- toolbar.js
-|   |   `-- ui.js
+|   |   |-- index.css
+|   |   |-- index.js
+|   |   `-- submit.js
 |   |-- package.json
 |   |-- postcss.config.js
 |   `-- tailwind.config.js
-|
-|-- .gitignore
 |-- requirements.txt
 |-- vercel.json
 `-- README.md
 ```
 
-## Frontend Architecture
+## Node System
 
-The frontend is organized around configuration-driven nodes. Individual node files define what a node needs, while shared components own the rendering.
+Nodes are registered in `frontend/src/registry/nodeRegistry.js`. The registry owns:
 
-`BaseNode.jsx` is responsible for:
+- node component mapping for ReactFlow
+- sidebar metadata
+- categories
+- icons
+- accent colors
+- default data
 
-- consistent card layout
-- node headers and icons
-- input and output handle rendering
-- configurable form fields
-- selected and hover states
-- dynamic dimensions when provided by a node
+Example definition:
 
-Example node pattern:
-
-```jsx
-<BaseNode
-  title="API"
-  inputs={[{ id: `${id}-input`, label: "input" }]}
-  outputs={[{ id: `${id}-response`, label: "response" }]}
-  fields={[
-    { type: "text", label: "URL", key: "url" },
-    { type: "select", label: "Method", key: "method", options: ["GET", "POST"] },
-  ]}
-/>
+```js
+api: {
+  type: "api",
+  label: "API",
+  description: "HTTP request",
+  category: "Integrations",
+  icon: "Globe",
+  color: "sky",
+  defaults: () => ({
+    url: "https://api.example.com/data",
+    method: "GET",
+    headers: "{ }",
+  }),
+}
 ```
 
-This keeps new node creation small and predictable.
+Every node renders through `BaseNode`, which supports:
+
+- configurable title and subtitle
+- configurable icon and color
+- configurable input and output handles
+- configurable fields
+- toolbar actions
+- validation/status labels
+- dynamic dimensions
+- reusable layout and selected states
 
 ## Implemented Nodes
 
-- Input Node: external values such as text, files, numbers, or JSON
-- Output Node: terminal pipeline output
-- Text Node: prompt/template text with dynamic variables
-- LLM Node: model and temperature configuration
-- API Node: URL and HTTP method configuration
-- Math Node: operation selector and numeric fallbacks
-- Filter Node: condition field with true/false outputs
-- Delay Node: delay duration with async status visualization
-- Merge Node: multiple inputs with one merged output
+- Input: external source values
+- Output: terminal pipeline result
+- Text: variable-aware text block with dynamic handles
+- LLM: model, temperature, and system prompt
+- API: URL, method, headers, response output
+- Math: operation selector, numeric inputs, computed preview
+- Filter: boolean branching
+- Delay: async wait simulation
+- Merge: multiple inputs into one output
+- JSON: JSON editor with inline validation
+- Prompt Template: LLM prompt templating with variable interpolation
+- Conditional: if/else branching
 
-## Text Node Variable Parsing
+## Variable Parsing
 
-The Text node supports variable syntax like:
-
-```text
-Summarize {{document}} using {{style}}
-```
-
-Variables are parsed with:
+Text and Prompt Template nodes detect valid variables with:
 
 ```js
 /{{\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*}}/g
 ```
 
-Valid variables:
+Valid:
 
 - `{{input}}`
 - `{{document}}`
 - `{{user_name}}`
 
-Invalid variables are ignored by the parser:
+Invalid:
 
 - `{{123}}`
 - `{{hello-world}}`
 
-Each valid variable creates a left-side input handle on the Text node.
+Each valid variable creates a live input handle on the left side of the node.
 
-## Backend API
+## Graph Validation API
 
-### Health Check
+### POST `/api/pipelines/parse`
 
-```http
-GET /
-```
-
-Response:
+Request:
 
 ```json
 {
-  "Ping": "Pong"
-}
-```
-
-### Parse Pipeline
-
-```http
-POST /pipelines/parse
-```
-
-Request body:
-
-```json
-{
-  "nodes": [
-    {
-      "id": "input-1",
-      "type": "customInput",
-      "position": { "x": 100, "y": 200 },
-      "data": {}
-    }
-  ],
-  "edges": [
-    {
-      "id": "edge-1",
-      "source": "input-1",
-      "target": "text-1",
-      "sourceHandle": "input-1-value",
-      "targetHandle": "text-1-var-document"
-    }
-  ]
+  "nodes": [{ "id": "input-1", "type": "input", "data": {} }],
+  "edges": [{ "source": "input-1", "target": "text-1" }]
 }
 ```
 
@@ -214,28 +246,25 @@ Response:
 {
   "num_nodes": 3,
   "num_edges": 2,
-  "is_dag": true
+  "is_dag": true,
+  "isolated_nodes": [],
+  "validation_errors": [],
+  "warnings": []
 }
 ```
 
-## DAG Validation
+The backend validates:
 
-The backend validates workflows with Kahn's topological sorting algorithm:
-
-1. Build an adjacency list from submitted edges.
-2. Track indegree count for every node.
-3. Queue all nodes with indegree `0`.
-4. Visit queued nodes and decrement downstream indegrees.
-5. If every node is visited, the graph is a DAG.
-6. If any node remains unvisited, the graph contains a cycle.
-
-Malformed edges that reference missing nodes are treated as invalid DAGs.
+- DAG correctness
+- cycle detection
+- invalid edges
+- duplicate edges
+- isolated nodes
+- disconnected graph components
 
 ## Local Development
 
-Open two terminals from the project root.
-
-### 1. Start the Backend
+Start the backend:
 
 ```bash
 cd backend
@@ -245,23 +274,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-On Windows PowerShell:
-
-```powershell
-cd backend
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-Backend URL:
-
-```text
-http://localhost:8000
-```
-
-### 2. Start the Frontend
+Start the frontend:
 
 ```bash
 cd frontend
@@ -269,36 +282,31 @@ npm install
 npm start
 ```
 
-Frontend URL:
+Local URLs:
 
 ```text
-http://localhost:3000
+Frontend: http://localhost:3000
+Backend:  http://localhost:8000
 ```
 
-The frontend submits to `http://localhost:8000` by default. To point it at another backend, set:
+For local frontend-to-backend calls, create `frontend/.env`:
 
-```bash
+```text
 REACT_APP_API_BASE_URL=http://localhost:8000
 ```
 
-An example file is provided at `frontend/.env.example`.
+On Vercel, leave `REACT_APP_API_BASE_URL` unset so the app uses same-origin `/api` routes.
 
-In production on Vercel, no API environment variable is required. The frontend calls the same-origin API path:
+## Verification
 
-```text
-/api/pipelines/parse
-```
-
-## Validation Commands
-
-Run a frontend production build:
+Frontend build:
 
 ```bash
 cd frontend
 npm run build
 ```
 
-Run backend smoke checks:
+Backend smoke test:
 
 ```bash
 cd backend
@@ -308,37 +316,19 @@ from fastapi.testclient import TestClient
 from main import app
 
 client = TestClient(app)
-
 payload = {
-    "nodes": [{"id": "a"}, {"id": "b"}, {"id": "c"}],
-    "edges": [{"source": "a", "target": "b"}, {"source": "b", "target": "c"}],
+    "nodes": [{"id": "a"}, {"id": "b"}],
+    "edges": [{"source": "a", "target": "b"}],
 }
-
-print(client.post("/pipelines/parse", json=payload).json())
+print(client.post("/api/pipelines/parse", json=payload).json())
 PY
-```
-
-Expected response:
-
-```json
-{
-  "num_nodes": 3,
-  "num_edges": 2,
-  "is_dag": true
-}
 ```
 
 ## Vercel Deployment
 
-This repository is configured to deploy the frontend and backend in a single Vercel project.
+This repo is configured for a single Vercel project.
 
-Vercel files:
-
-- `vercel.json`: builds the React app from `frontend/`, serves `frontend/build`, and rewrites `/api/*` to the Python function.
-- `api/index.py`: Vercel Python entrypoint that imports the FastAPI app from `backend/main.py`.
-- `requirements.txt`: Python runtime dependencies for Vercel.
-
-Recommended Vercel settings:
+Settings:
 
 ```text
 Framework Preset: Other
@@ -346,45 +336,27 @@ Root Directory: ./
 Build Command: cd frontend && npm install && npm run build
 Output Directory: frontend/build
 Install Command: leave empty
+Environment Variables: none required
 ```
 
-Environment variables:
+Vercel files:
 
-- None required for production.
-- Do not set `REACT_APP_API_BASE_URL` on Vercel unless you intentionally want to call a different API host.
+- `vercel.json`: frontend build and API rewrite configuration
+- `api/index.py`: Python Function entrypoint
+- `requirements.txt`: Python dependencies for Vercel
 
-After deployment, the API will be available on the same domain:
+## Media
 
-```text
-https://your-vercel-domain.vercel.app/api/pipelines/parse
-```
+Recommended portfolio captures:
 
-## GitHub Push Checklist
-
-Before pushing:
-
-```bash
-git status
-git add .
-git commit -m "Build workflow studio assessment"
-git branch -M main
-git remote add origin <your-repo-url>
-git push -u origin main
-```
-
-Do not commit:
-
-- `node_modules/`
-- `frontend/build/`
-- `backend/.venv/`
-- `__pycache__/`
-- `.env` files
-- local logs and editor metadata
-
-These are covered by the root `.gitignore`.
+- Editor view with the searchable node sidebar
+- Text node creating dynamic handles from `{{document}}` and `{{style}}`
+- Connected DAG pipeline with animated edges
+- Validation toast showing node count, edge count, and DAG status
+- Export/import workflow JSON interaction
 
 ## Notes
 
-- The project still uses Create React App because that was the provided starter setup.
-- `npm audit` reports vulnerabilities from the inherited `react-scripts` dependency chain. The app builds and runs, but a production migration to Vite would be the clean long-term path.
-- The backend is deployed on Vercel as a Python Function, not as a long-running `uvicorn` server.
+- Create React App is retained because the starter project used CRA.
+- `react-scripts` may report inherited dependency advisories in `npm audit`; the production path would be a Vite migration.
+- Backend execution on Vercel uses Python Functions, not a long-running `uvicorn` process.

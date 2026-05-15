@@ -41,20 +41,39 @@ class PipelineParseResponse(BaseModel):
     num_nodes: int
     num_edges: int
     is_dag: bool
+    isolated_nodes: list[str] = Field(default_factory=list)
+    validation_errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
-def is_directed_acyclic_graph(nodes: list[PipelineNode], edges: list[PipelineEdge]) -> bool:
+def analyze_pipeline_graph(nodes: list[PipelineNode], edges: list[PipelineEdge]) -> PipelineParseResponse:
     node_ids = {node.id for node in nodes}
     adjacency: dict[str, list[str]] = defaultdict(list)
+    undirected_adjacency: dict[str, set[str]] = defaultdict(set)
     indegrees = {node_id: 0 for node_id in node_ids}
+    connected_node_ids: set[str] = set()
+    validation_errors: list[str] = []
+    warnings: list[str] = []
+    seen_edges: set[tuple[str, str, str | None, str | None]] = set()
 
     # Kahn's algorithm gives deterministic validation and also catches malformed
     # edges that reference nodes outside the submitted graph.
     for edge in edges:
         if edge.source not in node_ids or edge.target not in node_ids:
-            return False
+            validation_errors.append(f"Invalid edge references missing node: {edge.source} -> {edge.target}")
+            continue
+
+        edge_key = (edge.source, edge.target, edge.sourceHandle, edge.targetHandle)
+        if edge_key in seen_edges:
+            validation_errors.append(f"Duplicate edge detected: {edge.source} -> {edge.target}")
+            continue
+
+        seen_edges.add(edge_key)
+        connected_node_ids.update([edge.source, edge.target])
 
         adjacency[edge.source].append(edge.target)
+        undirected_adjacency[edge.source].add(edge.target)
+        undirected_adjacency[edge.target].add(edge.source)
         indegrees[edge.target] += 1
 
     queue = deque(node_id for node_id, indegree in indegrees.items() if indegree == 0)
@@ -69,7 +88,39 @@ def is_directed_acyclic_graph(nodes: list[PipelineNode], edges: list[PipelineEdg
             if indegrees[neighbor] == 0:
                 queue.append(neighbor)
 
-    return visited_count == len(node_ids)
+    is_dag = visited_count == len(node_ids)
+    if not is_dag:
+        validation_errors.append("Cycle detected: graph is not a directed acyclic graph.")
+
+    isolated_nodes = sorted(node_id for node_id in node_ids if node_id not in connected_node_ids)
+    if isolated_nodes:
+        warnings.append(f"{len(isolated_nodes)} isolated node(s) are not connected to the workflow.")
+
+    if nodes and not isolated_nodes:
+        remaining = set(node_ids)
+        component_count = 0
+        while remaining:
+            component_count += 1
+            start = remaining.pop()
+            component_queue = deque([start])
+            while component_queue:
+                current = component_queue.popleft()
+                for neighbor in undirected_adjacency[current]:
+                    if neighbor in remaining:
+                        remaining.remove(neighbor)
+                        component_queue.append(neighbor)
+
+        if component_count > 1:
+            warnings.append(f"Workflow has {component_count} disconnected graph components.")
+
+    return PipelineParseResponse(
+        num_nodes=len(nodes),
+        num_edges=len(edges),
+        is_dag=is_dag and not validation_errors,
+        isolated_nodes=isolated_nodes,
+        validation_errors=validation_errors,
+        warnings=warnings,
+    )
 
 
 @app.get('/')
@@ -79,11 +130,7 @@ def read_root():
 
 @app.post('/pipelines/parse', response_model=PipelineParseResponse)
 def parse_pipeline(pipeline: PipelineRequest) -> PipelineParseResponse:
-    return PipelineParseResponse(
-        num_nodes=len(pipeline.nodes),
-        num_edges=len(pipeline.edges),
-        is_dag=is_directed_acyclic_graph(pipeline.nodes, pipeline.edges),
-    )
+    return analyze_pipeline_graph(pipeline.nodes, pipeline.edges)
 
 
 @app.post('/api/pipelines/parse', response_model=PipelineParseResponse)
