@@ -66,7 +66,7 @@ export const nodeDefinitions = {
     type: "input",
     label: "Input",
     description: "External value",
-    category: "IO",
+    category: "Inputs",
     icon: "LogIn",
     color: "cyan",
     defaults: (id) => ({
@@ -91,7 +91,7 @@ export const nodeDefinitions = {
     type: "output",
     label: "Output",
     description: "Pipeline result",
-    category: "IO",
+    category: "Output",
     icon: "LogOut",
     color: "emerald",
     defaults: (id) => ({
@@ -103,7 +103,7 @@ export const nodeDefinitions = {
     type: "text",
     label: "Text",
     description: "Variable-aware text",
-    category: "Transform",
+    category: "Utilities",
     icon: "TextCursorInput",
     color: "amber",
     defaults: () => ({
@@ -114,7 +114,7 @@ export const nodeDefinitions = {
     type: "api",
     label: "API",
     description: "HTTP request",
-    category: "Integrations",
+    category: "Utilities",
     icon: "Globe",
     color: "sky",
     defaults: () => ({
@@ -127,7 +127,7 @@ export const nodeDefinitions = {
     type: "math",
     label: "Math",
     description: "Calculate value",
-    category: "Transform",
+    category: "Utilities",
     icon: "Calculator",
     color: "fuchsia",
     defaults: () => ({
@@ -162,7 +162,7 @@ export const nodeDefinitions = {
     type: "merge",
     label: "Merge",
     description: "Combine inputs",
-    category: "Transform",
+    category: "Utilities",
     icon: "GitMerge",
     color: "purple",
     defaults: () => ({
@@ -173,7 +173,7 @@ export const nodeDefinitions = {
     type: "json",
     label: "JSON",
     description: "Validate payload",
-    category: "Data",
+    category: "Utilities",
     icon: "Braces",
     color: "teal",
     defaults: () => ({

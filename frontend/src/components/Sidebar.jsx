@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useMemo } from "react";
 import { iconRegistry, nodePalette } from "../registry/nodeRegistry";
 import { useWorkflowStore } from "../store/useWorkflowStore";
+import { createPipelineNode } from "../utils/nodeFactory";
 
 const onDragStart = (event, nodeType) => {
   event.dataTransfer.setData("application/reactflow", JSON.stringify({ nodeType }));
@@ -12,6 +13,15 @@ const onDragStart = (event, nodeType) => {
 export const Sidebar = () => {
   const query = useWorkflowStore((state) => state.sidebarQuery);
   const setQuery = useWorkflowStore((state) => state.setSidebarQuery);
+  const nodes = useWorkflowStore((state) => state.nodes);
+  const addNode = useWorkflowStore((state) => state.addNode);
+  const getNodeID = useWorkflowStore((state) => state.getNodeID);
+
+  const quickAddNode = (type) => {
+    const id = getNodeID(type);
+    const offset = nodes.length * 32;
+    addNode(createPipelineNode({ id, type, position: { x: 120 + offset, y: 120 + offset } }));
+  };
 
   const groupedNodes = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -54,7 +64,7 @@ export const Sidebar = () => {
                 return (
                   <motion.div
                     key={node.type}
-                    className="flex cursor-grab items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/75 p-3 shadow-lg transition hover:-translate-y-0.5 hover:border-indigo-400/70 hover:bg-slate-800 active:cursor-grabbing"
+                    className="group flex cursor-grab items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/75 p-3 shadow-lg transition hover:-translate-y-0.5 hover:border-indigo-400/70 hover:bg-slate-800 active:cursor-grabbing"
                     draggable
                     whileTap={{ scale: 0.98 }}
                     onDragStart={(event) => onDragStart(event, node.type)}
@@ -66,6 +76,17 @@ export const Sidebar = () => {
                       <span className="block truncate text-sm font-semibold text-slate-100">{node.label}</span>
                       <span className="block truncate text-xs text-slate-400">{node.description}</span>
                     </span>
+                    <button
+                      className="ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-700 bg-slate-950/60 text-slate-400 opacity-0 transition hover:border-indigo-400/70 hover:text-indigo-200 group-hover:opacity-100"
+                      title={`Quick add ${node.label}`}
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        quickAddNode(node.type);
+                      }}
+                    >
+                      <Plus size={15} />
+                    </button>
                   </motion.div>
                 );
               })}

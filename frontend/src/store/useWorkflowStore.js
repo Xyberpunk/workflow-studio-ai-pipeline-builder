@@ -64,6 +64,7 @@ export const useWorkflowStore = create((set, get) => ({
   selectedNodeId: null,
   validation: null,
   sidebarQuery: "",
+  lastFieldHistoryAt: 0,
 
   getNodeID: (type) => {
     const nodeIDs = { ...get().nodeIDs };
@@ -82,8 +83,12 @@ export const useWorkflowStore = create((set, get) => ({
 
   updateNodeField: (nodeId, fieldName, fieldValue) => {
     set((state) => {
+      const now = Date.now();
+      const shouldTrack = now - state.lastFieldHistoryAt > 750;
       const next = {
         ...state,
+        ...(shouldTrack ? pushHistory(state) : {}),
+        lastFieldHistoryAt: shouldTrack ? now : state.lastFieldHistoryAt,
         nodes: state.nodes.map((node) =>
           node.id === nodeId ? { ...node, data: { ...node.data, [fieldName]: fieldValue } } : node,
         ),
@@ -95,7 +100,11 @@ export const useWorkflowStore = create((set, get) => ({
 
   onNodesChange: (changes) => {
     set((state) => {
-      const shouldTrack = changes.some((change) => ["remove", "add"].includes(change.type));
+      const shouldTrack = changes.some(
+        (change) =>
+          ["remove", "add"].includes(change.type) ||
+          (change.type === "position" && change.dragging === false),
+      );
       const next = {
         ...state,
         ...(shouldTrack ? pushHistory(state) : {}),

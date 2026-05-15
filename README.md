@@ -2,6 +2,11 @@
 
 AI Workflow Orchestration Platform for designing, connecting, validating, importing, and exporting graph-based automation pipelines.
 
+[![React](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=111827)](https://react.dev/)
+[![ReactFlow](https://img.shields.io/badge/ReactFlow-graph_editor-6366f1)](https://reactflow.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-validation_engine-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000?logo=vercel)](https://workflow-studio-ai-pipeline-builder.vercel.app/)
+
 Workflow Studio is built as a product-quality workflow editor inspired by LangFlow, n8n, Linear, Vercel tooling, and modern AI operations platforms. It combines a ReactFlow graph workspace, a reusable node engine, variable-aware prompt nodes, local workflow persistence, and a FastAPI validation service that understands graph structure.
 
 Live app:
@@ -32,28 +37,44 @@ https://github.com/Xyberpunk/workflow-studio-ai-pipeline-builder
 - Validation metadata for isolated nodes, duplicate edges, invalid edges, disconnected graphs, and cycles
 - Vercel-only fullstack deployment using Python Functions for the API
 
+## Demo
+
+![Workflow Studio demo](docs/assets/demo-workflow.gif)
+
+The committed demo asset is a 60-second walkthrough storyboard covering the core interaction path.
+
+Demo flow:
+
+1. Open the workflow builder.
+2. Add workflow nodes from the sidebar.
+3. Type variables such as `{{document}}` and `{{style}}`.
+4. Watch dynamic handles appear.
+5. Connect the graph.
+6. Validate the pipeline and inspect DAG feedback.
+
+## Screenshots
+
+| Workflow Canvas | Dynamic Variable Handles |
+| --- | --- |
+| ![Workflow canvas](docs/assets/editor-view.png) | ![Dynamic handles](docs/assets/dynamic-handles.png) |
+
+| DAG Validation Toast | Sidebar Node System |
+| --- | --- |
+| ![DAG validation toast](docs/assets/validation-toast.png) | ![Node sidebar](docs/assets/node-sidebar.png) |
+
 ## Product Architecture
 
 ```text
-User
-  |
-  v
-Workflow Studio UI
-  |
-  v
-ReactFlow Graph Editor
-  |
-  v
-Zustand Workflow Store
-  |
-  v
-Pipeline Serializer
-  |
-  v
+Frontend (React + ReactFlow)
+        |
+        v
+Workflow Graph State
+        |
+        v
 FastAPI Validation Engine
-  |
-  v
-Graph Analysis Response
+        |
+        v
+DAG Analysis
 ```
 
 ## Tech Stack
@@ -190,6 +211,15 @@ Every node renders through `BaseNode`, which supports:
 - validation/status labels
 - dynamic dimensions
 - reusable layout and selected states
+
+## Key Engineering Decisions
+
+- Reusable `BaseNode` abstraction: keeps node rendering consistent while letting each node declare only fields, handles, icon, color, and status.
+- Node registry system: centralizes node metadata, ReactFlow type mapping, sidebar grouping, defaults, and future extensibility.
+- Dynamic variable parsing: uses a strict JavaScript identifier regex so prompt handles are reactive without accepting invalid variable names.
+- DAG validation with Kahn's Algorithm: gives deterministic cycle detection and enables validation metadata for warnings and errors.
+- Zustand workflow store: keeps graph state, selection, validation, history, persistence, import, and export logic outside UI components.
+- Same-origin Vercel API: deploys the React app and FastAPI validation engine under one domain without external backend hosting.
 
 ## Implemented Nodes
 
@@ -345,6 +375,22 @@ Vercel files:
 - `api/index.py`: Python Function entrypoint
 - `requirements.txt`: Python dependencies for Vercel
 
+## GitHub Presentation
+
+Recommended repository description:
+
+```text
+Modern AI workflow orchestration platform built with ReactFlow, FastAPI, dynamic node abstraction, and DAG validation.
+```
+
+Recommended social preview image:
+
+```text
+docs/assets/editor-view.png
+```
+
+The repository includes screenshots and an animated demo under `docs/assets/` for profile, portfolio, and README presentation.
+
 ## Media
 
 Recommended portfolio captures:
@@ -354,6 +400,16 @@ Recommended portfolio captures:
 - Connected DAG pipeline with animated edges
 - Validation toast showing node count, edge count, and DAG status
 - Export/import workflow JSON interaction
+
+## Future Improvements
+
+- Workflow execution engine with typed runtime values
+- Persistent cloud storage for saved workflows
+- Collaborative editing and multiplayer cursors
+- AI agent orchestration primitives
+- Plugin marketplace for custom nodes and integrations
+- Execution logs, retries, and observability timelines
+- Credential vault for API and model provider secrets
 
 ## Notes
 

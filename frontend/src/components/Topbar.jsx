@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { usePipelineValidation } from "../hooks/usePipelineValidation";
 import { useWorkflowStore } from "../store/useWorkflowStore";
 import { downloadPipeline, serializePipeline } from "../utils/pipelineSerializer";
+import { validateImportedPipeline } from "../utils/importExportValidation";
 import { SubmitButton } from "./SubmitButton";
 
 export const Topbar = () => {
@@ -24,6 +25,10 @@ export const Topbar = () => {
 
     try {
       const payload = JSON.parse(await file.text());
+      const validation = validateImportedPipeline(payload);
+      if (!validation.valid) {
+        throw new Error(validation.message);
+      }
       importWorkflow(payload);
       toast.success("Workflow imported.");
     } catch (error) {

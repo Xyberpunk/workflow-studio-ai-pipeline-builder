@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactFlow, { Background, MiniMap, ReactFlowProvider } from "reactflow";
 import { CanvasControls } from "../components/CanvasControls";
+import { EmptyCanvasState } from "../components/EmptyCanvasState";
 import { Layout } from "../components/Layout";
 import { Sidebar } from "../components/Sidebar";
 import { Topbar } from "../components/Topbar";
@@ -26,6 +27,28 @@ const WorkflowCanvas = () => {
   const deleteSelected = useWorkflowStore((state) => state.deleteSelected);
   const undo = useWorkflowStore((state) => state.undo);
   const redo = useWorkflowStore((state) => state.redo);
+  const validation = useWorkflowStore((state) => state.validation);
+
+  const isolatedNodeIds = useMemo(() => new Set(validation?.isolated_nodes ?? []), [validation]);
+  const hasValidationError = Boolean(validation?.validation_errors?.length || validation?.is_dag === false);
+
+  const renderedNodes = useMemo(
+    () =>
+      nodes.map((node) => ({
+        ...node,
+        className: isolatedNodeIds.has(node.id) ? "node-isolated" : node.className,
+      })),
+    [isolatedNodeIds, nodes],
+  );
+
+  const renderedEdges = useMemo(
+    () =>
+      edges.map((edge) => ({
+        ...edge,
+        className: hasValidationError ? "edge-invalid" : edge.className,
+      })),
+    [edges, hasValidationError],
+  );
 
   const onDrop = useCallback(
     (event) => {
@@ -81,10 +104,10 @@ const WorkflowCanvas = () => {
     <div ref={reactFlowWrapper} className="h-full w-full">
       <ReactFlow
         connectionLineType="smoothstep"
-        edges={edges}
+        edges={renderedEdges}
         fitView
         nodeTypes={nodeRegistry}
-        nodes={nodes}
+        nodes={renderedNodes}
         proOptions={proOptions}
         snapGrid={[gridSize, gridSize]}
         snapToGrid
@@ -108,6 +131,7 @@ const WorkflowCanvas = () => {
           zoomable
         />
         <CanvasControls />
+        {nodes.length === 0 ? <EmptyCanvasState /> : null}
       </ReactFlow>
     </div>
   );

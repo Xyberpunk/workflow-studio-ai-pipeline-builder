@@ -64,9 +64,29 @@
   box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.55), 0 0 34px rgba(99, 102, 241, 0.22), 0 18px 45px rgba(15, 23, 42, 0.45);
 }
 
+.react-flow__node.node-isolated .workflow-node-card {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.45), 0 0 28px rgba(245, 158, 11, 0.16);
+}
+
 .react-flow__edge.selected .react-flow__edge-path {
   stroke: #c4b5fd;
   stroke-width: 3;
+}
+
+.react-flow__edge.edge-invalid .react-flow__edge-path {
+  stroke: #ef4444;
+  stroke-dasharray: 8 6;
+}
+
+.react-flow__edge.edge-invalid .react-flow__edge-path {
+  animation: edge-warning 1.2s linear infinite;
+}
+
+@keyframes edge-warning {
+  to {
+    stroke-dashoffset: -28;
+  }
 }
 
 .react-flow__handle {
