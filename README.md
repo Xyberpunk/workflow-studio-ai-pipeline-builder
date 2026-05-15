@@ -1,6 +1,6 @@
 # Workflow Studio
 
-A modern AI workflow automation editor built for the VectorShift frontend technical assessment. The project includes a polished React + ReactFlow frontend and a FastAPI backend that validates submitted pipelines as directed acyclic graphs.
+A modern AI workflow automation editor . The project includes a polished React + ReactFlow frontend and a FastAPI backend that validates submitted pipelines as directed acyclic graphs.
 
 ## What This Builds
 
